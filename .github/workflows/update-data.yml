@@ -41,10 +41,15 @@ jobs:
         run: python3 scripts/fetch_myfxbook.py --out data/dashboard.json
 
       # Seuls les fichiers du site sont publiés (pas les scripts ni la configuration).
+      # Chaque adresse de fichier CSS ou JS reçoit le numéro de version en cours (?v=...).
+      # Le navigateur recharge ainsi tous les fichiers après une mise à jour, au lieu de
+      # mélanger une nouvelle page avec d'anciens fichiers gardés en mémoire.
       - name: Préparer le site
         run: |
           mkdir _site
           cp -r *.html css js img data _site/
+          version=${GITHUB_SHA::7}
+          sed -i -E "s#(href|src)=\"((css|js)/[^\"?]+)\"#\1=\"\2?v=${version}\"#g" _site/*.html
 
       - uses: actions/upload-pages-artifact@v3
         with:
