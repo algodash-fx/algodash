@@ -82,6 +82,13 @@
       return;
     }
 
+    // Piège à robots : un visiteur réel ne peut pas cocher cette case invisible.
+    // On n'envoie rien, sans le signaler au robot.
+    if (el.botcheck.checked) {
+      setStatus("Message envoyé. Tu recevras la réponse par e-mail.", "is-success");
+      return;
+    }
+
     var label = el["send-mail"].querySelector("span");
     el["send-mail"].disabled = true;
     label.textContent = "Envoi en cours…";
@@ -94,13 +101,15 @@
         subject: "AlgoDash : nouveau message",
         from_name: "AlgoDash",
         email: email,                         // sert d'adresse de réponse
-        message: text,
-        botcheck: el.botcheck.checked         // coché uniquement par un robot
+        message: text
       })
     })
       .then(function (response) {
         return response.json().catch(function () { return {}; }).then(function (result) {
-          return { status: response.status, ok: response.ok && result.success === true };
+          var ok = response.ok && result.success === true;
+          // En cas de refus, la raison donnée par le service est visible dans la console (F12).
+          if (!ok) console.warn("Web3Forms :", response.status, result.message || (result.body && result.body.message));
+          return { status: response.status, ok: ok };
         });
       })
       .then(function (result) {
