@@ -33,7 +33,7 @@ API_BASE = "https://www.myfxbook.com/api/"
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = ROOT / "data" / "dashboard.json"
 TIMEOUT_S = 30
-MAX_TRADES = 200          # positions fermées conservées par compte
+MAX_TRADES = 1000         # positions fermées conservées par compte
 ACCOUNT_PREFIX = "MT5"    # libellé affiché devant le numéro de compte
 
 
@@ -203,6 +203,8 @@ def fetch_account(raw, session, tz):
         trades.append({
             "openTime": to_utc_iso(row.get("openTime"), tz),
             "closeTime": close_time,
+            # Jour de clôture à l'heure du broker : le même découpage que la série quotidienne.
+            "day": parse_dt(row.get("closeTime")).date().isoformat(),
             "symbol": row.get("symbol"),
             "action": action.capitalize(),
             "lots": num((row.get("sizing") or {}).get("value")),
@@ -291,6 +293,7 @@ def sample_accounts():
                     trades.append({
                         "openTime": (close - timedelta(minutes=rng.randint(4, 180))).strftime("%Y-%m-%dT%H:%M:%SZ"),
                         "closeTime": close.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                        "day": day.isoformat(),
                         "symbol": "XAUUSD", "action": "Buy" if buy else "Sell", "lots": lots,
                         "openPrice": price,
                         "closePrice": round(price + (move if buy else -move), 2),

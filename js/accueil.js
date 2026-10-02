@@ -1,14 +1,16 @@
 /*
  * AlgoDash - page d'accueil.
  *
- * Affiche, pour le compte sélectionné : le sélecteur de compte, les chiffres clés,
- * la courbe d'évolution, les résultats jour / semaine / mois et les dernières
- * positions fermées. Chaque bloc gère ses états : chargement, vide, erreur.
+ * Affiche, pour le compte sélectionné : les chiffres clés, la courbe d'évolution,
+ * les résultats jour / semaine / mois et les dernières positions fermées.
+ * L'en-tête (sélecteur de compte, mise à jour) et le chargement sont dans js/app.js.
+ * Chaque bloc gère ses états : chargement, vide, erreur.
  */
 (function () {
   "use strict";
 
   var D = window.AlgoData;
+  var App = window.AlgoApp;
   var PERIODS = [
     { id: "1J", label: "1J" }, { id: "1S", label: "1S" }, { id: "1M", label: "1M" },
     { id: "3M", label: "3M" }, { id: "1A", label: "1A" }, { id: "ALL", label: "Tout" }
@@ -17,40 +19,16 @@
   var ACCENT = "#f33bc3";
   var REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  var state = { data: null, accountId: null, period: "ALL", mode: "pct", chart: null };
+  var state = { period: "ALL", mode: "pct", chart: null };
 
   var el = {};
-  ["account", "badge", "updated", "refresh", "notice", "kpis", "mode", "period",
-    "chart", "chart-state", "results", "trades"].forEach(function (id) {
+  ["kpis", "mode", "period", "chart", "chart-state", "results", "trades"].forEach(function (id) {
     el[id] = document.getElementById(id);
   });
-
-  // ------------------------------------------------------------- utilitaires
-
-  function account() {
-    var accounts = state.data.accounts;
-    return accounts.filter(function (a) { return String(a.id) === String(state.accountId); })[0] || accounts[0];
-  }
-
-  /* Mémorise le compte choisi (confort uniquement : la page marche sans). */
-  function remember(id) {
-    try { localStorage.setItem("algodash.account", String(id)); } catch (error) { /* stockage indisponible */ }
-  }
-  function recall() {
-    try { return localStorage.getItem("algodash.account"); } catch (error) { return null; }
-  }
-
-  function stateHtml(text, withRetry) {
-    return "<p>" + D.escapeHtml(text) + "</p>" +
-      (withRetry ? '<button class="retry" type="button" data-retry>Réessayer</button>' : "");
-  }
 
   // ---------------------------------------------------- états de chargement
 
   function showLoading() {
-    el.account.innerHTML = '<span class="account-pill skeleton skeleton-pill"></span>';
-    el.badge.hidden = true;
-    el.updated.textContent = "";
     el.kpis.innerHTML = "";
     el["chart-state"].innerHTML = '<span class="skeleton skeleton-chart"></span>';
     var lines = '<span class="skeleton skeleton-line"></span>';
@@ -60,85 +38,19 @@
 
   /* Erreur sans aucune donnée à montrer : message clair dans chaque bloc. */
   function showError(error) {
-    var block = '<div class="block-state">' + stateHtml(error.message, true) + "</div>";
-    el.account.innerHTML = '<span class="account-pill">Compte indisponible</span>';
-    el.badge.hidden = true;
-    el.updated.textContent = "";
-    el.notice.hidden = true;
+    var block = '<div class="block-state">' + App.stateHtml(error.message, true) + "</div>";
     el.kpis.innerHTML = "";
     el.mode.innerHTML = "";
     el.period.innerHTML = "";
-    el["chart-state"].innerHTML = stateHtml(error.message, true);
+    el["chart-state"].innerHTML = App.stateHtml(error.message, true);
     el.results.innerHTML = block;
     el.trades.innerHTML = block;
-  }
-
-  // ----------------------------------------------------- sélecteur de compte
-
-  function renderAccount() {
-    var accounts = state.data.accounts;
-    var current = account();
-
-    if (accounts.length < 2) {
-      // Un seul compte : simple libellé, sans flèche ni menu.
-      el.account.innerHTML = '<span class="account-pill">' + D.escapeHtml(current.label) + "</span>";
-    } else {
-      var options = accounts.map(function (a) {
-        var selected = String(a.id) === String(current.id);
-        return '<li role="presentation"><button class="account-option" type="button" role="option" ' +
-          'aria-selected="' + selected + '" data-account="' + D.escapeHtml(a.id) + '">' +
-          D.escapeHtml(a.label) + "</button></li>";
-      }).join("");
-      el.account.innerHTML =
-        '<button class="account-pill" type="button" id="account-button" aria-haspopup="listbox" aria-expanded="false">' +
-        D.escapeHtml(current.label) + '<span class="chevron" aria-hidden="true"></span></button>' +
-        '<ul class="account-menu" role="listbox" aria-label="Choisir un compte" hidden>' + options + "</ul>";
-    }
-
-    el.badge.hidden = false;
-    el.badge.textContent = current.demo ? "Démo" : "Réel";
-    el.badge.classList.toggle("is-real", !current.demo);
-  }
-
-  function toggleAccountMenu(open) {
-    var button = document.getElementById("account-button");
-    var menu = el.account.querySelector(".account-menu");
-    if (!button || !menu) return;
-    var willOpen = open === undefined ? menu.hidden : open;
-    menu.hidden = !willOpen;
-    button.setAttribute("aria-expanded", String(willOpen));
-  }
-
-  // ------------------------------------------- mise à jour et bandeau d'info
-
-  function renderStatus() {
-    var data = state.data;
-    var status = data.status || {};
-    var last = status.lastSuccessAt || data.generatedAt;
-    var current = account();
-
-    el.updated.textContent = last ? "Mis à jour " + D.ago(last) : "";
-    el.updated.title = current.myfxbookUpdate ? "Dernière synchronisation Myfxbook : " + current.myfxbookUpdate : "";
-
-    var text = "";
-    var isError = false;
-    if (data.sample) {
-      text = "Données d’exemple : le dashboard n’est pas encore relié à Myfxbook.";
-    } else if (status.ok === false) {
-      isError = true;
-      text = D.message(status.code) + (last ? " Affichage des données du " + D.dateTime(last).replace(" ", " à ") + "." : "");
-    } else if (last && Date.now() - new Date(last).getTime() > D.STALE_MS) {
-      text = "Les données n’ont pas été rafraîchies depuis le " + D.dateTime(last).replace(" ", " à ") + ".";
-    }
-    el.notice.hidden = !text;
-    el.notice.textContent = text;
-    el.notice.classList.toggle("is-error", isError);
   }
 
   // ------------------------------------------------------------ chiffres clés
 
   function renderKpis() {
-    var current = account();
+    var current = App.account();
     var stats = current.stats;
     var items = [
       { label: "Gain total", value: D.percent(stats.gain), tone: D.tone(stats.gain) },
@@ -155,12 +67,7 @@
   // ------------------------------------------------------------------ courbe
 
   function renderControls() {
-    var currency = D.money(0, account().currency).replace(/[\d\s,.  ]/g, "") || "$";
-    var modes = [{ id: "pct", label: "%" }, { id: "money", label: currency }];
-    el.mode.innerHTML = modes.map(function (m) {
-      return '<button type="button" data-mode="' + m.id + '" aria-pressed="' + (state.mode === m.id) + '">' +
-        D.escapeHtml(m.label) + "</button>";
-    }).join("");
+    el.mode.innerHTML = App.modeButtons(state.mode, App.account().currency);
     el.period.innerHTML = PERIODS.map(function (p) {
       return '<button type="button" data-period="' + p.id + '" aria-pressed="' + (state.period === p.id) + '">' +
         p.label + "</button>";
@@ -308,7 +215,7 @@
               callback: function (value) {
                 return state.mode === "pct"
                   ? D.number(value, Math.abs(value) < 10 && value % 1 !== 0 ? 1 : 0) + " %"
-                  : D.money(value, account().currency).replace(/,00/, "");
+                  : D.money(value, App.account().currency).replace(/,00/, "");
               }
             }
           }
@@ -329,7 +236,7 @@
             callbacks: {
               label: function (context) {
                 var point = context.dataset.points[context.dataIndex];
-                var currency = account().currency;
+                var currency = App.account().currency;
                 var lines = [state.mode === "pct"
                   ? "Gain cumulé : " + D.percent(point.value)
                   : "Profit cumulé : " + D.money(point.value, currency, true)];
@@ -347,9 +254,9 @@
   }
 
   function renderChart() {
-    var series = buildSeries(account());
+    var series = buildSeries(App.account());
     if (series.empty) {
-      el["chart-state"].innerHTML = stateHtml(series.empty, false);
+      el["chart-state"].innerHTML = App.stateHtml(series.empty, false);
       return;
     }
     el["chart-state"].innerHTML = "";
@@ -367,7 +274,7 @@
   // -------------------------------------------------- résultats par période
 
   function renderResults() {
-    var results = account().results || {};
+    var results = App.account().results || {};
     var rows = [
       { label: "Résultats journaliers", value: results.day },
       { label: "Résultats hebdomadaires", value: results.week },
@@ -382,36 +289,18 @@
   // ---------------------------------------------------- dernières positions
 
   function renderTrades() {
-    var current = account();
+    var current = App.account();
     var trades = (current.trades || []).slice(0, TRADES_SHOWN);   // déjà triées, la plus récente d'abord
     if (!trades.length) {
-      el.trades.innerHTML = '<div class="block-state">' + stateHtml("Aucune position fermée pour l’instant.", false) + "</div>";
+      el.trades.innerHTML = '<div class="block-state">' + App.stateHtml("Aucune position fermée pour l’instant.", false) + "</div>";
       return;
     }
-    var rows = trades.map(function (t) {
-      return "<tr>" +
-        "<td>" + D.dateTime(t.closeTime) + "</td>" +
-        "<td>" + (t.action === "Buy" ? "Achat" : "Vente") + "</td>" +
-        '<td class="num">' + (t.lots == null ? "–" : D.number(t.lots, 2)) + "</td>" +
-        '<td class="num col-price">' + (t.openPrice == null ? "–" : D.number(t.openPrice, 2)) + "</td>" +
-        '<td class="num col-price">' + (t.closePrice == null ? "–" : D.number(t.closePrice, 2)) + "</td>" +
-        '<td class="num ' + D.tone(t.profit) + '">' + D.money(t.profit, current.currency, true) + "</td>" +
-        "</tr>";
-    }).join("");
-    el.trades.innerHTML =
-      '<div class="trades-scroll" tabindex="0" role="region" aria-label="Dernières positions fermées">' +
-      '<table class="trades"><thead><tr>' +
-      '<th scope="col">Clôture</th><th scope="col">Sens</th><th scope="col" class="num">Lots</th>' +
-      '<th scope="col" class="num col-price">Entrée</th><th scope="col" class="num col-price">Sortie</th>' +
-      '<th scope="col" class="num">Profit</th>' +
-      "</tr></thead><tbody>" + rows + "</tbody></table></div>";
+    el.trades.innerHTML = App.tradesTable(trades, current.currency, true);
   }
 
   // --------------------------------------------------------------- pilotage
 
-  function renderAll() {
-    renderAccount();
-    renderStatus();
+  function render() {
     renderKpis();
     renderControls();
     renderChart();
@@ -419,57 +308,16 @@
     renderTrades();
   }
 
-  function refresh(showSkeleton) {
-    if (showSkeleton) showLoading();
-    return D.load().then(function (data) {
-      state.data = data;
-      if (state.accountId === null) state.accountId = recall();
-      state.accountId = account().id;
-      renderAll();
-    }).catch(function (error) {
-      // Si des données sont déjà affichées, on les garde plutôt que de tout effacer.
-      if (state.data) {
-        el.notice.hidden = false;
-        el.notice.classList.add("is-error");
-        el.notice.textContent = (error.message || D.message("NETWORK")) + " Les dernières données connues restent affichées.";
-      } else {
-        showError(error.code ? error : { message: D.message("NETWORK") });
-      }
-    });
-  }
-
-  // Un seul écouteur pour tous les clics de la page.
+  // Boutons d'unité (% / devise) et de période de la courbe.
   document.addEventListener("click", function (event) {
     var target = event.target.closest("button");
-    var insideAccount = event.target.closest("#account");
-    if (!insideAccount) toggleAccountMenu(false);
     if (!target) return;
-
-    if (target.id === "account-button") {
-      toggleAccountMenu();
-    } else if (target.dataset.account) {
-      state.accountId = target.dataset.account;
-      remember(state.accountId);
-      renderAll();
-    } else if (target.dataset.mode) {
-      state.mode = target.dataset.mode;
-      renderControls();
-      renderChart();
-    } else if (target.dataset.period) {
-      state.period = target.dataset.period;
-      renderControls();
-      renderChart();
-    } else if (target.id === "refresh" || target.hasAttribute("data-retry")) {
-      state.data = null;
-      refresh(true);
-    }
+    if (target.dataset.mode) state.mode = target.dataset.mode;
+    else if (target.dataset.period) state.period = target.dataset.period;
+    else return;
+    renderControls();
+    renderChart();
   });
 
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape") toggleAccountMenu(false);
-  });
-
-  refresh(true);
-  setInterval(function () { refresh(false); }, D.REFRESH_MS);            // nouvelles données toutes les 15 min
-  setInterval(function () { if (state.data) renderStatus(); }, 60000);   // « il y a X min »
+  App.start({ onLoading: showLoading, onRender: render, onError: showError });
 })();

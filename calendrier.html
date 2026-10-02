@@ -11,10 +11,35 @@
   <aside class="sidebar" id="sidebar"></aside>
 
   <main class="main">
-    <h1 class="page-title">Calendrier</h1>
-    <!-- Contenu à venir -->
+    <h1 class="visually-hidden">Calendrier</h1>
+
+    <!-- Sélecteur de compte, badge Démo/Réel, dernière mise à jour -->
+    <header class="toolbar">
+      <div class="account" id="account"><span class="account-pill skeleton skeleton-pill"></span></div>
+      <span class="badge" id="badge" hidden></span>
+      <span class="updated" id="updated"></span>
+      <button class="link-button" id="refresh" type="button">Actualiser</button>
+    </header>
+
+    <!-- Bandeau d'information : données d'exemple, données anciennes, erreur Myfxbook -->
+    <p class="notice" id="notice" role="status" hidden></p>
+
+    <!-- Calendrier du mois : une case par jour, un résumé par semaine -->
+    <section class="card calendar-card" aria-label="Résultats par jour">
+      <div class="calendar-head" id="calendar-head"></div>
+      <div id="calendar"></div>
+    </section>
+
+    <!-- Positions fermées du jour sélectionné -->
+    <section class="card day-card" id="day-card" hidden>
+      <h2 class="card-title" id="day-title"></h2>
+      <div id="day-detail"></div>
+    </section>
   </main>
 
   <script src="js/layout.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/calendrier.js"></script>
 </body>
 </html>

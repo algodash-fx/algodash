@@ -8,3 +8,6 @@ __pycache__/
 
 # Fichier de données : généré par le script, jamais versionné
 data/dashboard.json
+
+# Mémo personnel : jamais publié
+MEMO-PRIVE.md

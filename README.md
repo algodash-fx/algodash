@@ -17,11 +17,14 @@ Les identifiants Myfxbook sont dans les **secrets chiffrés du dépôt GitHub**.
 | Fichier | Rôle |
 |---|---|
 | `index.html` | Page d'accueil |
-| `comptes.html`, `calendrier.html`, `liens.html`, `contact.html` | Pages à compléter (titre seul pour l'instant) |
+| `calendrier.html` | Calendrier des résultats par jour |
+| `comptes.html`, `liens.html`, `contact.html` | Pages à compléter (titre seul pour l'instant) |
 | `css/style.css` | Style commun (couleurs de la maquette en haut du fichier) |
 | `js/layout.js` | Barre latérale, page active, menu mobile |
 | `js/data.js` | Lecture des données, messages d'erreur, formats (français, heure suisse) |
-| `js/accueil.js` | Sélecteur de compte, chiffres clés, courbe, résultats, positions |
+| `js/app.js` | En-tête commun (sélecteur de compte, mise à jour), chargement, tableau des positions |
+| `js/accueil.js` | Chiffres clés, courbe, résultats, dernières positions |
+| `js/calendrier.js` | Grille du mois, résumés par semaine, positions du jour sélectionné |
 | `js/vendor/chart.umd.min.js` | Chart.js 4.4.7, inclus dans le projet |
 | `scripts/fetch_myfxbook.py` | Récupération des données Myfxbook |
 | `.github/workflows/update-data.yml` | Planification toutes les 15 min et publication |
