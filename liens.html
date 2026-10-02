@@ -11,8 +11,47 @@
   <aside class="sidebar" id="sidebar"></aside>
 
   <main class="main">
-    <h1 class="page-title">Liens utiles</h1>
-    <!-- Contenu à venir -->
+    <h1 class="visually-hidden">Liens utiles</h1>
+
+    <!--
+      Une carte par lien. Pour en ajouter une : copier un bloc <a class="card link-card">,
+      changer l'adresse (href), le titre, le texte et le logo.
+      Chaque carte s'ouvre dans un nouvel onglet.
+    -->
+    <div class="links-grid">
+
+      <a class="card link-card" href="https://t.me/+iwQgp42okdkwMjY8" target="_blank" rel="noopener noreferrer">
+        <div class="link-text">
+          <h2 class="link-title">Canal Telegram</h2>
+          <p class="link-description">Rejoignez le canal officiel pour suivre l’actualité du projet. Ce flux est exclusivement dédié aux annonces importantes, aux mises à jour du système et aux nouvelles fonctionnalités à venir.</p>
+        </div>
+        <span class="link-logo"><img src="img/telegram.png" alt="" width="76" height="76"></span>
+      </a>
+
+      <a class="card link-card" href="https://puvip.co/la-partners/J5QDJkyi" target="_blank" rel="noopener noreferrer sponsored">
+        <div class="link-text">
+          <h2 class="link-title">Création de compte PUPRIME</h2>
+          <p class="link-description">Ouvrez votre compte de trading totalement gratuitement en passant par ce lien, zéro frais cachés. Cela vous permet de commencer à trader tout en soutenant le projet.</p>
+        </div>
+        <span class="link-logo"><img src="img/puprime.png" alt="" width="76" height="76"></span>
+      </a>
+
+      <!-- Lien pas encore disponible : carte affichée mais non cliquable.
+           Quand le lien existe, remplacer cette ligne par :
+           <a class="card link-card" href="ADRESSE" target="_blank" rel="noopener noreferrer sponsored">
+           retirer la ligne « Bientôt disponible », et remplacer le </div> final par </a>. -->
+      <div class="card link-card is-soon">
+        <div class="link-text">
+          <h2 class="link-title">Création de compte VANTAGE</h2>
+          <p class="link-soon">Bientôt disponible</p>
+          <p class="link-description">Ouvrez votre compte de trading totalement gratuitement en passant par ce lien, zéro frais cachés. Cela vous permet de commencer à trader tout en soutenant le projet.</p>
+        </div>
+        <span class="link-logo"><img src="img/vantage.png" alt="" width="76" height="76"></span>
+      </div>
+
+    </div>
+
+    <p class="links-note">Les liens vers les brokers sont des liens d’affiliation : ouvrir un compte par leur intermédiaire soutient le projet.</p>
   </main>
 
   <script src="js/layout.js"></script>

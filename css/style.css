@@ -400,6 +400,58 @@ button.cal-cell:hover { transform: translateY(-2px); filter: brightness(1.15); }
 .skeleton-calendar { width: 100%; height: 520px; border-radius: 18px; }
 .trades-wrap { overflow-x: auto; }
 
+/* ------------------------------------------------------------ liens utiles */
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  max-width: 1060px;
+  margin-top: 65px;
+}
+
+/* Toute la carte est cliquable et s'ouvre dans un nouvel onglet */
+.link-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-height: 186px;
+  padding: 30px 34px 30px 40px;
+  color: var(--text);
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.link-card:hover { background: var(--surface-hover); transform: translateY(-3px); }
+.link-card:hover .link-title { color: var(--accent); }
+
+/* Carte dont le lien n'existe pas encore : visible, mais non cliquable */
+.link-card.is-soon { opacity: 0.6; }
+.link-card.is-soon:hover { background: var(--surface); transform: none; }
+.link-card.is-soon:hover .link-title { color: var(--text); }
+.link-card.is-soon .link-title { margin-bottom: 8px; }
+.link-soon {
+  display: inline-block;
+  margin: 0 0 10px;
+  padding: 3px 11px;
+  background: var(--bg);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.link-text { flex: 1; min-width: 0; }
+.link-title { margin: 0 0 16px; font-size: 18px; transition: color 0.2s ease; }
+.link-description { margin: 0; max-width: 340px; font-size: 13.5px; }
+
+.link-logo {
+  flex: none;
+  width: 76px; height: 76px;
+  border-radius: 18px;
+  overflow: hidden;
+}
+.link-logo img, .link-logo svg { display: block; width: 100%; height: 100%; object-fit: cover; }
+.links-note { max-width: 1060px; margin: 22px 6px 0; color: var(--text-muted); font-size: 13px; }
+
 /* ---------------------------------------------------------------- contact */
 .contact-card { max-width: 760px; margin-top: 4px; padding: 34px 36px; }
 .contact-title { margin: 0; font-size: 26px; }
@@ -557,6 +609,9 @@ textarea.field { min-height: 170px; resize: vertical; }
   .col-price { display: none; }       /* prix d'entrée et de sortie masqués */
   .trades-scroll { max-height: 240px; }
 
+  .links-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 8px; }
+  .link-card { min-height: 0; padding: 24px 20px; }
+  .link-logo { width: 60px; height: 60px; border-radius: 15px; }
   .contact-card { padding: 24px 20px; }
   .contact-title { font-size: 22px; }
 
