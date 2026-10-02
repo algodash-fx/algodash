@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Accueil · AlgoDash</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="accueil">
+  <!-- La barre latérale est remplie par js/layout.js (identique sur toutes les pages) -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <main class="main">
+    <h1 class="visually-hidden">Accueil</h1>
+
+    <!-- Sélecteur de compte, badge Démo/Réel, dernière mise à jour -->
+    <header class="toolbar">
+      <div class="account" id="account"><span class="account-pill skeleton skeleton-pill"></span></div>
+      <span class="badge" id="badge" hidden></span>
+      <span class="updated" id="updated"></span>
+      <button class="link-button" id="refresh" type="button">Actualiser</button>
+    </header>
+
+    <!-- Bandeau d'information : données d'exemple, données anciennes, erreur Myfxbook -->
+    <p class="notice" id="notice" role="status" hidden></p>
+
+    <!-- Grand bloc : chiffres clés + courbe d'évolution -->
+    <section class="card chart-card" aria-label="Évolution du compte">
+      <div class="chart-head">
+        <dl class="kpis" id="kpis"></dl>
+        <div class="chart-controls">
+          <div class="segmented" id="mode" role="group" aria-label="Unité de la courbe"></div>
+          <div class="segmented" id="period" role="group" aria-label="Période affichée"></div>
+        </div>
+      </div>
+      <div class="chart-body">
+        <canvas id="chart" role="img" aria-label="Courbe d’évolution des gains et pertes du compte"></canvas>
+        <div class="block-state" id="chart-state"></div>
+      </div>
+    </section>
+
+    <div class="bottom">
+      <!-- Résultats journaliers / hebdomadaires / mensuels -->
+      <section class="card results-card" aria-label="Résultats par période">
+        <div id="results"></div>
+      </section>
+
+      <!-- Dernières positions fermées -->
+      <section class="card trades-card">
+        <h2 class="card-title">Dernières positions</h2>
+        <div id="trades"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/vendor/chart.umd.min.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/accueil.js"></script>
+</body>
+</html>

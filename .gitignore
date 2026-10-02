@@ -1,0 +1,10 @@
+# Identifiants locaux : ne jamais publier
+.env
+
+# Dossiers générés
+_site/
+__pycache__/
+.claude/
+
+# Fichier de données : généré par le script, jamais versionné
+data/dashboard.json

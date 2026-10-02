@@ -1,0 +1,68 @@
+# Récupère les données Myfxbook toutes les 15 min et publie le dashboard sur GitHub Pages.
+name: Mettre à jour les données et publier
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"   # GitHub lance souvent avec 5 à 30 min de retard
+  push:
+    branches: [main]         # publie aussi à chaque modification du site
+  workflow_dispatch:         # bouton "Run workflow" dans l'onglet Actions
+
+permissions:
+  contents: write            # pour le commit de maintien en activité (dernière étape)
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      # Les identifiants viennent des secrets du dépôt : ils n'apparaissent ni dans
+      # le code, ni dans les journaux, ni dans le fichier de données.
+      - name: Récupérer les données Myfxbook
+        env:
+          MYFXBOOK_EMAIL: ${{ secrets.MYFXBOOK_EMAIL }}
+          MYFXBOOK_PASSWORD: ${{ secrets.MYFXBOOK_PASSWORD }}
+          BROKER_TIMEZONE: ${{ vars.BROKER_TIMEZONE }}
+          # Dernières données publiées, réutilisées si Myfxbook est en panne.
+          PREVIOUS_DATA_URL: ${{ steps.pages.outputs.base_url }}/data/dashboard.json
+        run: python3 scripts/fetch_myfxbook.py --out data/dashboard.json
+
+      # Seuls les fichiers du site sont publiés (pas les scripts ni la configuration).
+      - name: Préparer le site
+        run: |
+          mkdir _site
+          cp -r *.html css js data _site/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+      # GitHub désactive les tâches planifiées d'un dépôt sans activité depuis 60 jours.
+      # Un petit commit tous les 30 jours évite cette coupure.
+      - name: Maintenir la planification active
+        run: |
+          last=$(git log -1 --format=%ct)
+          if [ $(( ($(date +%s) - last) / 86400 )) -ge 30 ]; then
+            date -u +%Y-%m-%d > .github/heartbeat
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add .github/heartbeat
+            git commit -m "Maintien de la planification"
+            git push
+          fi
