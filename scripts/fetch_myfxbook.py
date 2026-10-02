@@ -310,6 +310,7 @@ def sample_accounts():
         accounts.append({
             "id": 1000 + index, "label": f"{ACCOUNT_PREFIX} {number}", "name": f"Exemple {index + 1}",
             "demo": True, "currency": "USD", "myfxbookUpdate": now.strftime("%m/%d/%Y %H:%M"),
+            "myfxbookSeenAt": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
             "stats": {"gain": round(gain, 2), "balance": round(balance, 2), "equity": round(balance, 2),
                       "drawdown": round(max(0.0, peak - min(d["gain"] for d in daily[-40:])), 2),
                       "profit": round(balance - balance0, 2)},
@@ -344,6 +345,19 @@ def load_previous(out_path):
     return None
 
 
+def stamp_sync_times(accounts, previous):
+    """
+    Note depuis quand la date de synchronisation Myfxbook d'un compte n'a pas changé.
+    Le fuseau de cette date n'est pas documenté : on retient donc l'heure (UTC) à
+    laquelle on a vu sa valeur changer, ce qui permet de repérer un compte inactif.
+    """
+    seen = {str(a.get("id")): a for a in (previous or {}).get("accounts", [])}
+    for account in accounts:
+        old = seen.get(str(account["id"]), {})
+        unchanged = old.get("myfxbookUpdate") == account["myfxbookUpdate"] and old.get("myfxbookSeenAt")
+        account["myfxbookSeenAt"] = old["myfxbookSeenAt"] if unchanged else now_iso()
+
+
 def now_iso():
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -376,6 +390,7 @@ def main():
             if err.code != "SESSION":
                 raise
             accounts = fetch_all(email, password, tz)   # session refusée : une seule reconnexion
+        stamp_sync_times(accounts, load_previous(args.out))
         data = {"generatedAt": now_iso(), "sample": False,
                 "status": {"ok": True, "code": None, "message": None, "lastSuccessAt": now_iso()},
                 "accounts": accounts}

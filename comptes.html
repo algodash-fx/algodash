@@ -11,10 +11,25 @@
   <aside class="sidebar" id="sidebar"></aside>
 
   <main class="main">
-    <h1 class="page-title">Mes comptes</h1>
-    <!-- Contenu à venir -->
+    <h1 class="visually-hidden">Mes comptes</h1>
+
+    <!-- Dernière mise à jour à gauche, filtre « Tous les comptes » à droite -->
+    <header class="toolbar">
+      <span class="updated" id="updated"></span>
+      <button class="link-button" id="refresh" type="button">Actualiser</button>
+      <div class="account accounts-filter" id="filter"></div>
+    </header>
+
+    <!-- Bandeau d'information : données d'exemple, données anciennes, erreur Myfxbook -->
+    <p class="notice" id="notice" role="status" hidden></p>
+
+    <!-- Une carte par compte, remplie par js/comptes.js -->
+    <div class="accounts-grid" id="accounts"></div>
   </main>
 
   <script src="js/layout.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/comptes.js"></script>
 </body>
 </html>

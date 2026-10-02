@@ -19,13 +19,15 @@ Les identifiants Myfxbook sont dans les **secrets chiffrés du dépôt GitHub**.
 | `index.html` | Page d'accueil |
 | `calendrier.html` | Calendrier des résultats par jour |
 | `contact.html` | Formulaire de contact (e-mail et Telegram) |
-| `comptes.html`, `liens.html` | Pages à compléter (titre seul pour l'instant) |
+| `comptes.html` | Une carte par compte, avec filtre démo / réel |
+| `liens.html` | Liens utiles (cartes cliquables, logos dans `img/`) |
 | `css/style.css` | Style commun (couleurs de la maquette en haut du fichier) |
 | `js/layout.js` | Barre latérale, page active, menu mobile |
 | `js/data.js` | Lecture des données, messages d'erreur, formats (français, heure suisse) |
 | `js/app.js` | En-tête commun (sélecteur de compte, mise à jour), chargement, tableau des positions |
 | `js/accueil.js` | Chiffres clés, courbe, résultats, dernières positions |
 | `js/calendrier.js` | Grille du mois, résumés par semaine, positions du jour sélectionné |
+| `js/comptes.js` | Cartes de compte, pastille de synchronisation, filtre |
 | `js/contact.js` | Envoi du message ; réglages (clé Web3Forms, compte Telegram) en haut du fichier |
 | `js/vendor/chart.umd.min.js` | Chart.js 4.4.7, inclus dans le projet |
 | `scripts/fetch_myfxbook.py` | Récupération des données Myfxbook |

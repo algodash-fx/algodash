@@ -53,6 +53,7 @@ window.AlgoApp = (function () {
   // ----------------------------------------------------- sélecteur de compte
 
   function renderAccount() {
+    if (!el.account) return;            // page sans sélecteur de compte (Mes comptes)
     var accounts = state.data.accounts;
     var current = account();
 
@@ -78,6 +79,7 @@ window.AlgoApp = (function () {
   }
 
   function toggleAccountMenu(open) {
+    if (!el.account) return;
     var button = document.getElementById("account-button");
     var menu = el.account.querySelector(".account-menu");
     if (!button || !menu) return;
@@ -144,26 +146,37 @@ window.AlgoApp = (function () {
   }
 
   function showLoading() {
-    el.account.innerHTML = '<span class="account-pill skeleton skeleton-pill"></span>';
-    el.badge.hidden = true;
+    if (el.account) {
+      el.account.innerHTML = '<span class="account-pill skeleton skeleton-pill"></span>';
+      el.badge.hidden = true;
+    }
     el.updated.textContent = "";
     hooks.onLoading();
   }
 
   /* Erreur sans aucune donnée à montrer : la page affiche le message dans ses blocs. */
   function showError(error) {
-    el.account.innerHTML = '<span class="account-pill">Compte indisponible</span>';
-    el.badge.hidden = true;
+    if (el.account) {
+      el.account.innerHTML = '<span class="account-pill">Compte indisponible</span>';
+      el.badge.hidden = true;
+    }
     el.updated.textContent = "";
     el.notice.hidden = true;
     hooks.onError(error);
+  }
+
+  /* Compte demandé par l'adresse (index.html?compte=123), utilisé par le bouton « Dash ». */
+  function accountFromUrl() {
+    var id = new URLSearchParams(window.location.search).get("compte");
+    if (id) remember("account", id);
+    return id;
   }
 
   function refresh(showSkeleton) {
     if (showSkeleton) showLoading();
     return D.load().then(function (data) {
       state.data = data;
-      if (state.accountId === null) state.accountId = recall("account");
+      if (state.accountId === null) state.accountId = accountFromUrl() || recall("account");
       state.accountId = account().id;
       renderAll();
     }).catch(function (error) {
