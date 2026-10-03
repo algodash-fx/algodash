@@ -1,5 +1,5 @@
 /*
- * AlgoDash - page Mes comptes.
+ * AlgoDash - page Comptes.
  *
  * Affiche une carte par compte Myfxbook : numéro, badge Démo/Réel, pastille
  * d'état de synchronisation, P&L réalisé depuis l'ouverture (montant et %),

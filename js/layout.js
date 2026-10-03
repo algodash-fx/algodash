@@ -11,7 +11,7 @@
 
   var NAV = [
     { id: "accueil", label: "Accueil", href: "index.html" },
-    { id: "comptes", label: "Mes comptes", href: "comptes.html" },
+    { id: "comptes", label: "Comptes", href: "comptes.html" },
     { id: "calendrier", label: "Calendrier", href: "calendrier.html" },
     { id: "liens", label: "Liens utiles", href: "liens.html" },
     { id: "contact", label: "Contact", href: "contact.html" }

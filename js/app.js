@@ -53,7 +53,7 @@ window.AlgoApp = (function () {
   // ----------------------------------------------------- sélecteur de compte
 
   function renderAccount() {
-    if (!el.account) return;            // page sans sélecteur de compte (Mes comptes)
+    if (!el.account) return;            // page sans sélecteur de compte (Comptes)
     var accounts = state.data.accounts;
     var current = account();
 
